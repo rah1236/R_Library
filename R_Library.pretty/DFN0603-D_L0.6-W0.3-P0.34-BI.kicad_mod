@@ -1,0 +1,139 @@
+(footprint "DFN0603-D_L0.6-W0.3-P0.34-BI"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -4 0)
+		(layer "F.SilkS")
+		(uuid "21bf18b3-faa3-45f6-8cd9-06700af2c5ef")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "DFN0603-D_L0.6-W0.3-P0.34-BI"
+		(at 0 4 0)
+		(layer "F.Fab")
+		(uuid "4154e65a-8af4-476c-9d58-8cb096a9f7bf")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "33541883-c405-4837-b446-50e45d002e04")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "942dae02-60ca-438a-afbd-65856a285081")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -0.45 -0.3)
+		(end 0.45 -0.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "ba3b03fd-4b8c-4190-8cc8-67c4aa7695b9")
+	)
+	(fp_line
+		(start -0.45 0.3)
+		(end -0.45 -0.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "375d7069-a1fd-4db6-99a6-85c2be93ec9b")
+	)
+	(fp_line
+		(start 0.45 -0.3)
+		(end 0.45 0.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3b4a4404-0a81-4c44-afbc-7c574956dc0c")
+	)
+	(fp_line
+		(start 0.45 0.3)
+		(end -0.45 0.3)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "290e7682-b6bc-4eb6-b9d8-2902f60e9477")
+	)
+	(fp_circle
+		(center -0.3 0.15)
+		(end -0.27 0.15)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "d7ca9e4c-ee1d-4446-bd35-6a2dcd77a308")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "3f21a2c5-4391-4aec-aa24-d8d2593f19d1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -0.19 0)
+		(size 0.23 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "0aaa9dfd-15fc-4b5c-87ca-8c6b3e4d0ab1")
+	)
+	(pad "2" smd rect
+		(at 0.19 0)
+		(size 0.23 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "f0707441-ccfe-4a9b-ac07-4c724306422b")
+	)
+	(embedded_fonts no)
+	(model "C:/Users/raheel/Documents/KiCad/R_Library/R_Library.3dshapes/DFN0603-D_L0.6-W0.3--H0.3-P0.34-BI.step"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

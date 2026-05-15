@@ -1,0 +1,65 @@
+(footprint "R1206"
+	(version 20241229)
+	(generator "R_Library_scripts")
+	(generator_version "1.0")
+	(layer "F.Cu")
+	(attr smd)
+	(property "Reference" "REF**"
+		(at 0 -1.8 0)
+		(layer "F.SilkS")
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(property "Value" "R1206"
+		(at 0 1.4 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(property "Description" "IPC-7351B nominal, Resistor 1206"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font (size 1 1) (thickness 0.15))
+		)
+	)
+	(fp_line (start -1.6 -0.8) (end 1.6 -0.8)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start 1.6 -0.8) (end 1.6 0.8)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start 1.6 0.8) (end -1.6 0.8)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start -1.6 0.8) (end -1.6 -0.8)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_circle (center -1.04 -0.44) (end -0.98 -0.44)
+		(stroke (width 0.06) (type default)) (fill solid) (layer "F.Fab"))
+	(fp_line (start -1.18 -0.92) (end 1.18 -0.92)
+		(stroke (width 0.12) (type default)) (layer "F.SilkS"))
+	(fp_line (start -1.18 0.92) (end 1.18 0.92)
+		(stroke (width 0.12) (type default)) (layer "F.SilkS"))
+	(pad "1" smd rect
+		(at -2 0 0)
+		(size 1.5 1.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+	)
+	(pad "2" smd rect
+		(at 2 0 0)
+		(size 1.5 1.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+	)
+	(model "C:/Users/raheel/Documents/KiCad/R_Library/R_Library.3dshapes/R1206_L3.2-W1.6-H0.6.step"
+		(offset
+			(xyz 0 0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+)

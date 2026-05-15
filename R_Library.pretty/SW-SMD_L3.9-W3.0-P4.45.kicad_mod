@@ -1,0 +1,130 @@
+(footprint "SW-SMD_L3.9-W3.0-P4.45"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -4 0)
+		(layer "F.SilkS")
+		(uuid "df4373b4-2474-426f-bf0a-ac4c4d150c01")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "SW-SMD_L3.9-W3.0-P4.45"
+		(at 0 4 0)
+		(layer "F.Fab")
+		(uuid "8ba165ee-b2e9-4c84-bbcc-c71cc1e311d4")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1e1778ed-dfa7-4a50-9394-607d03100880")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "14f394e1-0298-4a98-99a0-6889a169bfc3")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -2.03 -1.54)
+		(end -2.03 -0.88)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5c9132b5-c3ac-4f74-a0ee-1688713aee3a")
+	)
+	(fp_line
+		(start 2.03 -1.54)
+		(end -2.03 -1.54)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c2307910-afc8-4970-b58b-08fe52710a44")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 0.9 0)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "6908bbf1-7b2a-42c3-88b0-3ab39fd1d312")
+	)
+	(fp_circle
+		(center 2.5 -1.47)
+		(end 2.53 -1.47)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "e55d8e3f-7f72-4e43-a971-04df72cf10ba")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "d0c648c7-a93f-4c5b-9276-2912785876de")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -2.18 0)
+		(size 1.23 1.36)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "dc82a333-aff5-4590-b6aa-c56398e73f6d")
+	)
+	(pad "2" smd rect
+		(at 2.18 0)
+		(size 1.23 1.36)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "323478db-29d8-4027-ba20-938ea59929eb")
+	)
+	(embedded_fonts no)
+	(model "C:/Users/raheel/Documents/KiCad/R_Library/R_Library.3dshapes/SW-SMD_L3.9-W2.9-H2.0-LS4.8.step"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

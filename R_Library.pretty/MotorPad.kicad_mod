@@ -1,0 +1,79 @@
+(footprint "MotorPad"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -2.125 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "94f836fb-6f19-4b13-843f-be4f5ab89765")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "MotorPad"
+		(at 0 2.2 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "fa000768-5fc6-494c-8752-95cbe9f4f4f8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "5d9c6796-9d53-46df-a5bf-a0869c7faa36")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2e1f39be-63a2-461d-a30a-95dfd6aaf135")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_text user "${REFERENCE}"
+		(at 0 3.7 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "b11695fa-eb72-45af-8b1e-8b4e77b6b97a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole oval
+		(at 0 0)
+		(size 1.25 3)
+		(drill oval 0.579 1.754)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(thermal_bridge_angle 45)
+		(uuid "1752bc12-52ad-4573-b01c-56bded1b89e2")
+	)
+	(embedded_fonts no)
+)

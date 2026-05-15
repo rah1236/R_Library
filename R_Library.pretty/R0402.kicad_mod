@@ -1,0 +1,65 @@
+(footprint "R0402"
+	(version 20241229)
+	(generator "R_Library_scripts")
+	(generator_version "1.0")
+	(layer "F.Cu")
+	(attr smd)
+	(property "Reference" "REF**"
+		(at 0 -0.92 0)
+		(layer "F.SilkS")
+		(effects
+			(font (size 0.6 0.6) (thickness 0.09))
+		)
+	)
+	(property "Value" "R0402"
+		(at 0 0.61 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font (size 0.6 0.6) (thickness 0.09))
+		)
+	)
+	(property "Description" "IPC-7351B nominal, Resistor 0402"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(effects
+			(font (size 0.6 0.6) (thickness 0.09))
+		)
+	)
+	(fp_line (start -0.5 -0.25) (end 0.5 -0.25)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start 0.5 -0.25) (end 0.5 0.25)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start 0.5 0.25) (end -0.5 0.25)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_line (start -0.5 0.25) (end -0.5 -0.25)
+		(stroke (width 0.1) (type default)) (layer "F.Fab"))
+	(fp_circle (center -0.325 -0.1375) (end -0.265 -0.1375)
+		(stroke (width 0.06) (type default)) (fill solid) (layer "F.Fab"))
+	(fp_line (start -0.13 -0.37) (end 0.13 -0.37)
+		(stroke (width 0.12) (type default)) (layer "F.SilkS"))
+	(fp_line (start -0.13 0.37) (end 0.13 0.37)
+		(stroke (width 0.12) (type default)) (layer "F.SilkS"))
+	(pad "1" smd rect
+		(at -0.48 0 0)
+		(size 0.56 0.62)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+	)
+	(pad "2" smd rect
+		(at 0.48 0 0)
+		(size 0.56 0.62)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+	)
+	(model "C:/Users/raheel/Documents/KiCad/R_Library/R_Library.3dshapes/R0402_L1.0-W0.5-H0.4.step"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
