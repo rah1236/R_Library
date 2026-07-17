@@ -50,20 +50,23 @@ distinguish package size — different packages get different base part numbers.
 
 ## Value Field Conventions
 
-The `Value` property (visible on schematic) encodes part identity + PN:
+Full symbol/field requirements live in [SPEC.md](SPEC.md). Summary:
 
-| Category | Format | Example |
+The `Value` property (visible on schematic) is kept short. The internal part
+number is **never** part of the Value — it lives in the dedicated
+`Part Number` property, which is visible on the schematic just below Value.
+
+| Category | Value format | Example |
 |---|---|---|
-| Resistor | `<pkg> <resistance> <tol> <power>` | `0402 10kΩ 1% 1/16W \| r1000003-01-A` |
-| Capacitor | `<pkg> <cap> <voltage> <dielectric> <tol>` | `0402 4700pF 50V X7R 10% \| r2000001-01-A` |
-| Inductor | `<MPN> — <desc>` | `XAL5030-472MEC — 4.7µH \| r3000001-01-A` |
-| Diode | `<MPN> — <desc>` | `1N5819WS — Schottky 40V \| r4000001-01-A` |
-| LED | `<MPN> — <desc>` | `KT-0603R — Red LED 0603 \| r5000001-01-A` |
-| Transistor | `<MPN> — <desc>` | `L8050QLT1G — NPN SOT-23 \| r6000001-01-A` |
-| IC | `<MPN> — <desc>` | `LSM6DSOTR — IMU ACCEL/GYRO 3-AXIS 14-LGA \| r7000025-01-A` |
-| Connector | `<MPN> — <desc>` | `HR911105A — RJ45 With Mag \| r8000001-01-A` |
-| Crystal | `<MPN> — <desc>` | `Q13FC1350000400 — 32.768kHz \| r9100004-01-A` |
-| Board | `<BoardName> — <desc>` | `IrisSensorBoard — Rev A mainboard \| r9500001-01-A` |
+| Resistor | `<pkg> <resistance> <tol> <power>` | `0402 10kΩ 1% 1/16W` |
+| Capacitor (MLCC) | `<pkg> <cap> <voltage> <dielectric> <tol>` | `0603 2.2µF 25V X5R 10%` |
+| Capacitor (bulk/electrolytic) | `<cap> <voltage> <type> <tol>` | `220µF 63V Al-elec 20%` |
+| Thermistor | `<pkg> NTC <R> <B-constant>` | `0603 NTC 10kΩ B3950` |
+| Everything else (IC, Q, D, LED, L, X, connector, SW, fuse…) | `<MPN>` | `STM32H723ZGT6` |
+
+If a passive's spec can't be decoded reliably, its Value falls back to the MPN.
+The human-readable spec always goes in the `Description` property
+(e.g. `Resistor 0402 10kΩ 1% 1/16W`, `MCU ARM Cortex-M7 550MHz 1MB flash ETH LQFP-144`).
 
 ---
 
@@ -72,9 +75,10 @@ The `Value` property (visible on schematic) encodes part identity + PN:
 ```
 R_Library/
 ├── R_Library.kicad_sym      # Symbol library (add to KiCad global libraries)
-├── R_Library.pretty/        # Footprint library (87 footprints)
-├── R_Library.3dshapes/      # 3D models (162 .step + .wrl files)
+├── R_Library.pretty/        # Footprint library
+├── R_Library.3dshapes/      # 3D models (.step + .wrl)
 ├── pn_registry.json         # Part number registry — tracks all assigned PNs
+├── SPEC.md                  # Authoritative library specification
 ├── CLAUDE.md                # This file
 └── tools/
     ├── library_manager.py   # Main CLI tool (search, import, add-board)

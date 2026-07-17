@@ -27,19 +27,15 @@ Version field (A):
   Discrete parts (R/C/L/D/LED/Q/U/J/X/SW): Always 'A' — does not change
   Board assemblies (r9500001+): 'A' = first release, 'B' = rev B, etc.
 
-Value field conventions by category:
-  Resistors  : "<resistance> <tolerance> <power> <package>  e.g. 10kΩ 1% 1/16W 0402"
-  Capacitors : "<capacitance> <voltage> <dielectric> <package>  e.g. 100nF 50V X7R 0402"
-  Inductors  : "<inductance> <tolerance> <current> <package>  e.g. 4.7uH 20% 2.5A 252010"
-  Diodes     : "<type> <voltage> <current> <package>  e.g. Schottky 40V 1A SOD-323"
-  LEDs       : "<color> <Vf> <If> <package>  e.g. Red 2.0V 20mA 0603"
-  Transistors: "<type> <Vceo> <Ic> <package>  e.g. NPN 40V 500mA SOT-23"
-  ICs        : "<part_number> <brief_function>  e.g. RP2354B MCU"
-  Connectors : "<type> <pitch> <pins>  e.g. JST-PH 2.0mm 4P"
-  Crystals   : "<freq> <accuracy> <load_cap>  e.g. 32.768kHz ±20ppm 12.5pF"
-  Boards     : "<board_name> <brief_description>"
-
-The full PN is appended to the Value field: "... | r1000001-01-A"
+Value field conventions (full spec: SPEC.md — the internal PN is NEVER part
+of the Value; it lives in the visible "Part Number" property):
+  Resistors  : "<pkg> <resistance> <tol> <power>   e.g. 0402 10kΩ 1% 1/16W"
+  Capacitors : "<pkg> <cap> <voltage> <dielectric> <tol>  e.g. 0603 2.2µF 25V X5R 10%"
+  Bulk caps  : "<cap> <voltage> <type> <tol>       e.g. 220µF 63V Al-elec 20%"
+  Thermistors: "<pkg> NTC <R> <B>                  e.g. 0603 NTC 10kΩ B3950"
+  Everything else (IC, Q, D, LED, L, X, CN, SW, ...): "<MPN>  e.g. STM32H723ZGT6"
+  Passives that cannot be decoded confidently fall back to "<MPN>".
+  The human-readable spec goes in the Description property.
 """
 
 CATEGORY_BASES = {
