@@ -241,6 +241,138 @@ def _check_easyeda2kicad():
         )
     return [result]
 
+# ── LCSC spec enrichment (passives) ───────────────────────────────────────────
+# The local MPN decoder in build_library can't parse every passive (current-sense
+# shunts, specialty resistors) and easyeda descriptions are often blank. For R/C
+# parts we scrape the structured spec table off the LCSC product page to build a
+# proper Value/Description per SPEC.md §4/§5, falling back to the local decode.
+
+_POWER_FRAC = {
+    '62.5mW': '1/16W', '63mW': '1/16W', '100mW': '1/10W', '125mW': '1/8W',
+    '150mW': '3/20W',  '200mW': '1/5W',  '250mW': '1/4W',  '333mW': '1/3W',
+    '500mW': '1/2W',   '600mW': '3/5W',  '750mW': '3/4W',
+}
+
+def _fetch_lcsc_params(lcsc_id: str) -> tuple:
+    """Scrape spec data from the LCSC product page's embedded Next.js
+    __NEXT_DATA__ JSON. Returns (encap, {param: value}, category_path); on any
+    failure returns ('', {}, '') so callers fall back gracefully — never raises."""
+    try:
+        import requests
+        from fake_useragent import UserAgent
+        ua  = UserAgent(platforms='desktop').random
+        url = f'https://www.lcsc.com/product-detail/{lcsc_id}.html'
+        r = requests.get(url, headers={'User-Agent': ua, 'Accept': 'text/html'}, timeout=20)
+        if r.status_code != 200:
+            return '', {}, ''
+        m = re.search(r'id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.DOTALL)
+        if not m:
+            return '', {}, ''
+        data = json.loads(m.group(1))
+        def walk(o):
+            if isinstance(o, dict):
+                if 'paramVOList' in o:
+                    yield o
+                for v in o.values():
+                    yield from walk(v)
+            elif isinstance(o, list):
+                for v in o:
+                    yield from walk(v)
+        node = next(walk(data), None)
+        if not node:
+            return '', {}, ''
+        params = {p.get('paramNameEn'): p.get('paramValueEn')
+                  for p in (node.get('paramVOList') or []) if p.get('paramNameEn')}
+        crumbs = [c.get('catalogNameEn') for c in (node.get('parentCatalogList') or [])]
+        crumbs.append(node.get('catalogName') or '')
+        category = ' / '.join(c for c in crumbs if c)
+        return (node.get('encapStandard') or ''), params, category
+    except Exception:
+        return '', {}, ''
+
+# Coarse family used to compare an easyeda2kicad reference against the reference
+# inferred from the LCSC category — all connector refs collapse to one family.
+_REF_FAMILY = {'J': 'CONN', 'CN': 'CONN', 'USB': 'CONN', 'Card': 'CONN'}
+
+def _ref_family(ref: str) -> str:
+    return _REF_FAMILY.get(ref, ref)
+
+def _lcsc_category_ref(category: str) -> str:
+    """Map an LCSC category path to the expected R_Library reference designator.
+    Returns '' when the category isn't confidently recognized (no warning then)."""
+    c = (category or '').lower()
+    if not c:
+        return ''
+    if 'crystal' in c or 'oscillator' in c or 'resonator' in c:
+        return 'X'
+    if 'inductor' in c or 'ferrite' in c or 'choke' in c or 'common mode' in c:
+        return 'L'
+    if 'resistor' in c:
+        return 'R'
+    if 'capacitor' in c:
+        return 'C'
+    if 'light emitting' in c or 'optoelectronic' in c:
+        return 'LED'
+    if 'diode' in c or 'tvs' in c or 'rectifier' in c or 'esd' in c or 'transient' in c:
+        return 'D'
+    if 'mosfet' in c or 'transistor' in c or 'igbt' in c or 'jfet' in c:
+        return 'Q'
+    if 'connector' in c or 'interconnect' in c or 'terminal' in c or 'header' in c:
+        if 'usb' in c:
+            return 'USB'
+        if 'memory card' in c or 'sd card' in c or 'card socket' in c or 'card connector' in c:
+            return 'Card'
+        return 'CN'
+    if 'switch' in c:
+        return 'SW'
+    if 'integrated circuit' in c or '(ics)' in c or 'microcontroller' in c:
+        return 'U'
+    return ''
+
+def _clean_tol(t: str) -> str:
+    return (t or '').replace('±', '').strip()
+
+def _norm_power(p: str) -> str:
+    p = (p or '').strip()
+    if not p or p == '-':
+        return ''
+    return _POWER_FRAC.get(p, p)   # 100mW -> 1/10W; 3W stays 3W
+
+def build_passive_from_lcsc(ref: str, encap: str, params: dict) -> tuple:
+    """Build (Value, Description) for an R/C part from LCSC params, per SPEC.md
+    §4/§5. Returns (None, None) if the essential value is missing."""
+    pkg = (encap or '').strip()
+    if ref == 'R':
+        res = (params.get('Resistance') or '').strip()
+        if not res:
+            return None, None
+        tol     = _clean_tol(params.get('Tolerance'))
+        pwr     = _norm_power(params.get('Power(Watts)'))
+        typ     = params.get('Type') or ''
+        is_zero = res in ('0Ω', '0mΩ', '0R', '0')
+        parts   = [pkg, res]
+        if tol and not is_zero:      # 0Ω omits tolerance (SPEC §4)
+            parts.append(tol)
+        if pwr:
+            parts.append(pwr)
+        value = ' '.join(x for x in parts if x)
+        if 'Current Sense' in typ or 'Shunt' in typ:
+            desc = f'Shunt {value} current-sense'
+        else:
+            desc = f'Resistor {value}'
+        return value, desc
+    if ref == 'C':
+        cap = (params.get('Capacitance') or '').strip()
+        if not cap:
+            return None, None
+        volt = (params.get('Voltage Rating') or '').strip()
+        diel = (params.get('Temperature Coefficient') or '').strip()
+        tol  = _clean_tol(params.get('Tolerance'))
+        parts = [pkg, cap] + [x for x in (volt, diel, tol) if x and x != '-']
+        value = ' '.join(parts)
+        return value, f'Capacitor {value}'
+    return None, None
+
 def cmd_import(lcsc_id: str):
     """Import a part from LCSC via easyeda2kicad and add it to R_Library."""
     lcsc_id = lcsc_id.upper()
@@ -276,9 +408,10 @@ def cmd_import(lcsc_id: str):
         print(f"Could not find {lcsc_id} in source library after import.")
         return
 
-    from build_library import alloc_pn
+    from build_library import alloc_pn, build_value, build_desc
 
     new_blocks = []
+    category_warnings = []
     for s in imp_symbols:
         blk  = s['block']
         name = s['name']
@@ -297,12 +430,37 @@ def cmd_import(lcsc_id: str):
                    .replace('easyeda2kicad:', 'R_Library:')
                    .replace('imported:', 'R_Library:'))
 
-        blk = _set_prop(blk, 'Value', name)  # Value = clean MPN
+        # Fetch LCSC structured data once — reused for passive Value/Description
+        # enrichment and for the category/reference sanity check below.
+        lcsc_enc, lcsc_params, lcsc_category = '', {}, ''
+        if s['lcsc']:
+            lcsc_enc, lcsc_params, lcsc_category = _fetch_lcsc_params(s['lcsc'])
+
+        # Value: decoded spec for R/C per SPEC.md §4 ("<pkg> <val> <tol> ..."),
+        # MPN for everything else. Falls back to the MPN if it can't be decoded.
+        new_val  = build_value(s['ref'], name, s['description'])
+        new_desc = build_desc(s['ref'], name, s['description']) or name
+
+        # Passives: prefer LCSC's structured specs (fuller + handles parts the
+        # local decoder can't). Silently falls back to the local decode.
+        if s['ref'] in ('R', 'C'):
+            lv, ld = build_passive_from_lcsc(s['ref'], lcsc_enc, lcsc_params)
+            if lv:
+                new_val, new_desc = lv, ld
+                print(f"    LCSC specs -> {lv}")
+
+        # Category sanity check: easyeda2kicad often mis-assigns the reference
+        # (e.g. 'U' to a connector). Warn when the LCSC category disagrees so it
+        # can be recategorized + re-allocated into the right PN range (SPEC §1).
+        expected_ref = _lcsc_category_ref(lcsc_category)
+        if expected_ref and _ref_family(expected_ref) != _ref_family(s['ref']):
+            category_warnings.append((name, s['ref'], pn, expected_ref, lcsc_category))
+
+        blk = _set_prop(blk, 'Value', new_val)
         blk = _set_prop(blk, 'Footprint', new_fp)
 
-        # Description must exist and be non-empty; fall back to the MPN.
-        if not _get_prop(blk, 'Description').strip():
-            blk = _ensure_prop(blk, 'Description', name)
+        # Description must exist and be non-empty (SPEC.md §5).
+        blk = _ensure_prop(blk, 'Description', new_desc)
 
         # Datasheet: fall back to the LCSC product page when left blank.
         if not _get_prop(blk, 'Datasheet').strip() and s['lcsc']:
@@ -362,6 +520,11 @@ def cmd_import(lcsc_id: str):
         if fp_stem and fp_file.stem != fp_stem:
             continue  # only copy the footprint for this part
         dst = dst_fp_dir / fp_file.name
+        if dst.exists():
+            # Shared package already present — keep the curated version (SPEC §7),
+            # never clobber it with the raw easyeda2kicad footprint.
+            print(f"  Footprint : {fp_file.name} (kept existing, not overwritten)")
+            continue
         fp_text = fp_file.read_text(encoding='utf-8')
         fp_text = fp_text.replace('easyeda2kicad.3dshapes', 'R_Library.3dshapes')
         dst.write_text(fp_text, encoding='utf-8')
@@ -375,6 +538,15 @@ def cmd_import(lcsc_id: str):
 
     save_registry(reg)
     print(f"\nSuccessfully imported {lcsc_id} into R_Library.")
+
+    for nm, got, gpn, want, cat in category_warnings:
+        print( "\n" + "!" * 68)
+        print(f"  CATEGORY MISMATCH: {nm} ({gpn})")
+        print(f"    easyeda2kicad assigned reference '{got}', but LCSC category is:")
+        print(f"      {cat}")
+        print(f"    -> expected reference '{want}'. Recategorize and re-allocate the")
+        print(f"       PN into the '{want}' range before committing (SPEC.md §1).")
+        print( "!" * 68)
 
 # ── add-board ─────────────────────────────────────────────────────────────────
 

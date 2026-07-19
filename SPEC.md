@@ -124,17 +124,32 @@ Human-readable spec, redundant with nothing on the schematic:
 python tools/library_manager.py import Cxxxxx
 ```
 
-Post-import checklist (the importer does not do all of this yet):
-1. Reference/category correct → PN in the right range (§1).
+The importer now auto-fills: clean MPN symbol name (strips `_Cxxxx`), the
+`Part Number` (visible, below Value), `Datasheet` (LCSC page fallback), and —
+for passives (R/C) — a spec-conformant `Value`/`Description` scraped from the
+LCSC product page's structured spec table (package, resistance/capacitance,
+tolerance, power, voltage, dielectric). On any fetch failure it falls back to
+decoding the MPN locally, and to the bare MPN if that also fails.
+
+It also cross-checks the reference easyeda2kicad assigned against the LCSC
+category and prints a loud **CATEGORY MISMATCH** warning when they disagree
+(e.g. a connector imported as `U`). The warning is advisory — it does not
+auto-fix; recategorize and re-allocate the PN by hand per §1.
+
+Post-import checklist (verify; the importer handles 1–4 for most parts):
+1. Reference/category correct → PN in the right range (§1). Heed any
+   CATEGORY MISMATCH warning the importer prints.
 2. Symbol name is the clean MPN (§6).
-3. Value per §4, Description per §5.
+3. Value per §4, Description per §5 — auto-filled for passives; spot-check, and
+   set by hand for non-passives that need more than the MPN.
 4. `Part Number` visible below Value; `Datasheet` filled (§3).
 5. Pin names spot-checked against the datasheet (§6).
 6. `kicad-cli sym upgrade --force R_Library.kicad_sym` to normalize format.
 7. Validate (§9).
 
 Space bulk imports ≥20 s apart — the EasyEDA API rate-limits and starts
-returning 403 after ~10–15 rapid requests.
+returning 403 after ~10–15 rapid requests. (The LCSC scrape hits a separate
+host, `www.lcsc.com`, so it adds one request per import.)
 
 ### Boards
 

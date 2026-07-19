@@ -118,7 +118,7 @@ def _decode_resistance(sym_name: str, desc: str) -> str:
 _PKG_R = r'(?<!\d)(0201|0402|0603|0805|1206|1210|2010|2512)(?!\d)'
 _PKG_C = r'(?<!\d)(0201|0402|0603|0805|1206|1210|1812)(?!\d)'
 
-def build_resistor_desc(sym_name: str, existing_desc: str) -> str:
+def _resistor_value_parts(sym_name: str, existing_desc: str) -> list[str]:
     resistance = _decode_resistance(sym_name, existing_desc)
     tolerance  = ""
     power      = ""
@@ -131,12 +131,20 @@ def build_resistor_desc(sym_name: str, existing_desc: str) -> str:
     m = re.search(_PKG_R, existing_desc, re.I) or re.search(_PKG_R, sym_name, re.I)
     if m: package = m.group(1)
 
-    parts = [x for x in [package, resistance, tolerance, power] if x]
+    return [x for x in [package, resistance, tolerance, power] if x]
+
+def build_resistor_value(sym_name: str, existing_desc: str) -> str:
+    """Value per SPEC.md §4: '<pkg> <resistance> <tol> <power>', falls back to MPN."""
+    parts = _resistor_value_parts(sym_name, existing_desc)
+    return " ".join(parts) if parts else sym_name
+
+def build_resistor_desc(sym_name: str, existing_desc: str) -> str:
+    parts = _resistor_value_parts(sym_name, existing_desc)
     if parts:
         return "Resistor " + " ".join(parts)
     return existing_desc  # fallback to original
 
-def build_capacitor_desc(sym_name: str, existing_desc: str) -> str:
+def _capacitor_value_parts(sym_name: str, existing_desc: str) -> list[str]:
     cap = voltage = dielectric = tolerance = package = ""
 
     m = re.search(r'([\d.]+)\s*(MF|UF|NF|PF|F)\b', existing_desc, re.I)
@@ -153,7 +161,15 @@ def build_capacitor_desc(sym_name: str, existing_desc: str) -> str:
     m = re.search(_PKG_C, existing_desc, re.I) or re.search(_PKG_C, sym_name, re.I)
     if m: package = m.group(1)
 
-    parts = [x for x in [package, cap, voltage, dielectric, tolerance] if x]
+    return [x for x in [package, cap, voltage, dielectric, tolerance] if x]
+
+def build_capacitor_value(sym_name: str, existing_desc: str) -> str:
+    """Value per SPEC.md §4: '<pkg> <cap> <voltage> <dielectric> <tol>', falls back to MPN."""
+    parts = _capacitor_value_parts(sym_name, existing_desc)
+    return " ".join(parts) if parts else sym_name
+
+def build_capacitor_desc(sym_name: str, existing_desc: str) -> str:
+    parts = _capacitor_value_parts(sym_name, existing_desc)
     if parts:
         return "Capacitor " + " ".join(parts)
     return existing_desc
@@ -162,13 +178,26 @@ def build_generic_desc(sym_name: str, existing_desc: str) -> str:
     """For everything else: keep existing description, don't override."""
     return existing_desc
 
+def build_generic_value(sym_name: str, existing_desc: str) -> str:
+    """Everything else: Value is the MPN (SPEC.md §4)."""
+    return sym_name
+
 DESC_BUILDERS = {
     'R':    build_resistor_desc,
     'C':    build_capacitor_desc,
 }
 
+VALUE_BUILDERS = {
+    'R':    build_resistor_value,
+    'C':    build_capacitor_value,
+}
+
 def build_desc(ref: str, sym_name: str, existing_desc: str) -> str:
     builder = DESC_BUILDERS.get(ref, build_generic_desc)
+    return builder(sym_name, existing_desc)
+
+def build_value(ref: str, sym_name: str, existing_desc: str) -> str:
+    builder = VALUE_BUILDERS.get(ref, build_generic_value)
     return builder(sym_name, existing_desc)
 
 # ── symbol parser ─────────────────────────────────────────────────────────────
@@ -213,15 +242,14 @@ def process(dry_run=False, sample_only=False):
     for name, start, end, ref, orig_val, orig_desc, footprint, block in parse_symbols(src):
         pn = alloc_pn(reg, name, ref)
 
-        # Value = original MPN (no change)
+        # Value = decoded spec for R/C (SPEC.md §4), MPN for everything else
         # Description = decoded spec (for R/C) or kept as-is
+        new_val  = build_value(ref, name, orig_desc)
         new_desc = build_desc(ref, name, orig_desc)
         new_fp   = footprint.replace('easyeda2kicad:', 'R_Library:')
 
         new_block = block
-        # Value stays as the MPN — restore it to the original symbol name in case
-        # a previous run had put the enriched string there
-        new_block = _set_prop(new_block, 'Value', name)
+        new_block = _set_prop(new_block, 'Value', new_val)
         new_block = _set_prop(new_block, 'Description', new_desc)
         new_block = _set_prop(new_block, 'Footprint', new_fp)
 
